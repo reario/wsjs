@@ -1,0 +1,25 @@
+.axis path, .axis line {
+    fill: none;
+    stroke: green;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font: 13px sans-serif;
+}
+
+.digit {
+   font: 13px sans-serif;
+}
+
+
+.axis .grid-line{
+    stroke: yellow;
+    shape-rendering: crispEdges;
+    stroke-opacity: .2;
+}
+
+.cursor {
+    fill: red;
+    stroke: black;
+}
