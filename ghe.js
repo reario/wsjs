@@ -211,7 +211,7 @@ function initDashBoard() {
     wattmetro=createStrumento(wattmetro_properties);
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
-    var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
+    var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy');
     // var ws = new WebSocket('ws://' + '192.168.1.103' + ':81');
     ws.onmessage = function (event) {
 	var A=parseFloat(JSON.parse(event.data).Energia.I);    
