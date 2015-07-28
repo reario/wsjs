@@ -211,13 +211,15 @@ function initDashBoard() {
     wattmetro=createStrumento(wattmetro_properties);
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
+
     var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy');
     var n=0;
+    d3.select("body").append("div").attr("id","IO");
+    d3.select("body").append("div").attr("id","hb");
     // $('#hb').html('*');
     // var wshb = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','HB'); // Hearth Beat
     // var ws = new WebSocket('ws://' + '192.168.1.103' + ':81');
     ws.onmessage = function (event) {
-	
 	var A=parseFloat(JSON.parse(event.data).Energia.I);    
 	var V=parseFloat(JSON.parse(event.data).Energia.V);
 	var W=parseFloat(JSON.parse(event.data).Energia.P);    
@@ -228,6 +230,7 @@ function initDashBoard() {
 	move(wattmetro,W);
 	move(pressostato,Bar);
 	move(pressostato_pozzo,Bar_pozzo);
+	$('#IO').html(JSON.parse(event.data).IO);
 	//
 	var c = $('#hb').html();
 	n++;

@@ -2,11 +2,9 @@
 //====================================================================================================
 function createStrumento(strumento_properties) {    
     // empty containers
-
-    var strumento=d3.select("#strumenti").append("svg")
+    var strumento=d3.select("body").append("svg")
 	.attr("width", 85)
         .attr("height", height)
-        .attr("float","left")
 	.append("g").attr("id",strumento_properties.name);
     var axis=strumento.append("g").attr("id","axis").attr("class","axis");
     var cursor=strumento.append("g").attr("id","cursor").attr("class","cursor");
@@ -207,20 +205,21 @@ function drawbox(str) {
 }
 
 function initDashBoard() {
-    d3.select("body").append("div").attr("id","strumenti");
+    //container=createSVG();
     amperometro=createStrumento(amperometro_properties);
     voltmetro=createStrumento(voltmetro_properties);
     wattmetro=createStrumento(wattmetro_properties);
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
-    
+    drawbox(pressostato);
+    var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
     var n=0;
+
     d3.select("body").append("div").attr("id","IO");
     d3.select("body").append("div").attr("id","hb");
     // $('#hb').html('*');
     // var wshb = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','HB'); // Hearth Beat
-    var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
-    
+    // var ws = new WebSocket('ws://' + '192.168.1.103' + ':81');
     ws.onmessage = function (event) {
 	var A=parseFloat(JSON.parse(event.data).Energia.I);    
 	var V=parseFloat(JSON.parse(event.data).Energia.V);
