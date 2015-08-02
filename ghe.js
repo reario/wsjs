@@ -216,14 +216,14 @@ function initDashBoard() {
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
     
     var n=0;
-    d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 85px; height: 500px");
+    d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 145px; height: 500px");
     d3.select("body").append("div").attr("id","hb");//.attr("style","float:left;");
     // $('#hb').html('*');
-    var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
-    // var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
+   var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
+   // var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
     
     ws.onmessage = function (event) {
-	var A=parseFloat(JSON.parse(event.data).Energia.I);    
+	var A=parseFloat(JSON.parse(event.data).Energia.I);
 	var V=parseFloat(JSON.parse(event.data).Energia.V);
 	var W=parseFloat(JSON.parse(event.data).Energia.P);    
 	var Bar=parseFloat(JSON.parse(event.data).Bar);
@@ -233,8 +233,27 @@ function initDashBoard() {
 	move(wattmetro,W);
 	move(pressostato,Bar);
 	move(pressostato_pozzo,Bar_pozzo);
-	$('#IO').html(JSON.parse(event.data).IO1);
-	$('#IO').append(JSON.parse(event.data).IO2);
+	$('#IO').html('</br>');
+//	$('#IO').html(JSON.parse(event.data).IO1);
+//	$('#IO').append(JSON.parse(event.data).IO2);
+
+	$('#IO').append(JSON.parse(event.data).Stati.Aut + ':Autoclave' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.Pozzo + ':posso' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.Riemp + ':riempimento serbatoio' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.LE + ':luci esterne' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.LG_4 + ': luci garage da 4' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.LG_2 + ':luce garage da 2' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.Tav1 + ':taverna 1' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.Tav2 + ':taverna 2' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.INT + ':internet' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.C9912 + ':9912' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.culu + ':Cunicolo lungo' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.cuco + ':Cunicolo corto' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.lust + ':luci studio sotto' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.luansc + ':luci scale sotto' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.genaut + ':Generale autoclave' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.lucant + ':luce cantinetta' + '</br>');
+
 	var c = $('#hb').html();
 	n++;
 	//alert(c);
@@ -247,8 +266,7 @@ function initDashBoard() {
 	    n=0;
 	}
 	
-    }
-    
+    }    
 }
 
   
