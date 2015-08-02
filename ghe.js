@@ -2,9 +2,11 @@
 //====================================================================================================
 function createStrumento(strumento_properties) {    
     // empty containers
-    var strumento=d3.select("body").append("svg")
+
+    var strumento=d3.select("#strumenti").append("svg")
 	.attr("width", 85)
         .attr("height", height)
+        .attr("float","left")
 	.append("g").attr("id",strumento_properties.name);
     var axis=strumento.append("g").attr("id","axis").attr("class","axis");
     var cursor=strumento.append("g").attr("id","cursor").attr("class","cursor");
@@ -205,20 +207,21 @@ function drawbox(str) {
 }
 
 function initDashBoard() {
-    //container=createSVG();
+    
+    d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: azure; width: 425px; float:left");
     amperometro=createStrumento(amperometro_properties);
     voltmetro=createStrumento(voltmetro_properties);
     wattmetro=createStrumento(wattmetro_properties);
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
-
-    var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy');
+    
     var n=0;
-    d3.select("body").append("div").attr("id","IO");
-    d3.select("body").append("div").attr("id","hb");
+    d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 85px; height: 500px");
+    d3.select("body").append("div").attr("id","hb");//.attr("style","float:left;");
     // $('#hb').html('*');
-    // var wshb = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','HB'); // Hearth Beat
-    // var ws = new WebSocket('ws://' + '192.168.1.103' + ':81');
+    var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
+    // var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
+    
     ws.onmessage = function (event) {
 	var A=parseFloat(JSON.parse(event.data).Energia.I);    
 	var V=parseFloat(JSON.parse(event.data).Energia.V);
@@ -230,8 +233,8 @@ function initDashBoard() {
 	move(wattmetro,W);
 	move(pressostato,Bar);
 	move(pressostato_pozzo,Bar_pozzo);
-	$('#IO').html(JSON.parse(event.data).IO);
-	//
+	$('#IO').html(JSON.parse(event.data).IO1);
+	$('#IO').append(JSON.parse(event.data).IO2);
 	var c = $('#hb').html();
 	n++;
 	//alert(c);
