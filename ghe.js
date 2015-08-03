@@ -237,7 +237,7 @@ function initDashBoard() {
 //	$('#IO').html(JSON.parse(event.data).IO1);
 //	$('#IO').append(JSON.parse(event.data).IO2);
 
-	$('#IO').append(JSON.parse(event.data).Stati.Aut + ':Autoclave' + '</br>');
+	$('#IO').append(JSON.parse(event.data).Stati.Aut + '<p>' + ':Autoclave' + '</p></br>');
 	$('#IO').append(JSON.parse(event.data).Stati.Pozzo + ':posso' + '</br>');
 	$('#IO').append(JSON.parse(event.data).Stati.Riemp + ':riempimento serbatoio' + '</br>');
 	$('#IO').append(JSON.parse(event.data).Stati.LE + ':luci esterne' + '</br>');

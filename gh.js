@@ -1,4 +1,5 @@
 //====================================================================================================
+// Funzione per la creazione degli assi graduati
 //====================================================================================================
 function createStrumento(strumento_properties) {    
     // empty containers
@@ -70,13 +71,11 @@ function createStrumento(strumento_properties) {
     // // sposta l'asse e il cursore il giusto per farlo rimanere nello schermo
     var bboxx = strumento.node().getBBox().x<0?(-1*(strumento.node().getBBox().x)):0;
     var bboxy = strumento.node().getBBox().y<0?(-1*(strumento.node().getBBox().y)):0;
+
     //////////////////////////////////
     // Display digit
     //////////////////////////////////
-    //amperometro.append('rect').attr('x',w[0]).attr('y',w[1]+w[3]).attr('height',45).attr('width',w[2]) // vale per verticale
-    
     strumento.attr("transform","translate("+ (bboxx) +"," + (bboxy) +")");
-
     if ((orient == "left" || orient=="right")) {
 	var dx=strumento.node().getBBox().x;
 	var dy=strumento.node().getBBox().y + strumento.node().getBBox().height+15;
@@ -123,6 +122,41 @@ function move(str,valore) {
 }
 
 //====================================================================================================
+// Funzione per la creazione delle SPIE luminose
+//====================================================================================================
+
+function createSpia(spia_properties) {
+    var spia=d3.select('#spie').append("svg")
+	.attr("width", (spia_properties.r)*2+1)
+        .attr("height", (spia_properties.r)*2+1)
+	.attr("id",spia_properties.name);
+    
+    var cx=spia.node().getBBox().x+(spia_properties.r);
+    var cy=spia.node().getBBox().y+(spia_properties.r);
+    
+    spia.append("g").append("circle")
+	.attr("cx",cx)
+	.attr("cy",cy)
+	.attr("r",spia_properties.r)
+
+	.style("fill",spia_properties.bordercolor);
+    
+    spia.append("g").append("circle")
+	.attr("cx",cx)
+	.attr("cy",cy)
+	.attr("r",spia_properties.r-2)
+
+	.style("fill",spia_properties.colorON);
+
+    return spia
+};
+	       
+//====================================================================================================
+// Funzione per la creazione dei bottoni di comando
+//====================================================================================================
+
+
+//====================================================================================================
 //====================================================================================================
 
 
@@ -158,63 +192,61 @@ var pressostato_pozzo_properties={"scaleparam": {"range":[10,height-60], "domain
                     ,"axis_orient":'left'
                     ,"name":"pressostato pozzo"
                    };
+//----------------------------------------------------------------------------------------
+var spia_property={
+    "name":'spia'
+    ,"r":10
+    ,"border":2
+    ,"borderColor":'grey'
+    ,"colorON":'red'
+    ,"colorOFF":'white'
+};
 
+var luce_autoclave={
+    "name":'autoclave'
+    ,"r":10
+    ,"border":2
+    ,"borderColor":'grey'
+    ,"colorON":'red'
+    ,"colorOFF":'white'
+};
 
-function createSVG(){
-    return d3.select("body").append("svg")
-        .attr("width", width)
-        .attr("height", height);
-}
+var luce_pompa_pozzo={
+    "name":'pompa_pozzo'
+    ,"r":10
+    ,"border":2
+    ,"borderColor":'grey'
+    ,"colorON":'red'
+    ,"colorOFF":'white'
+};
 
-    var drag = d3.behavior.drag()
-    //.on("dragstart", dragstarted)
-	.on("drag", dragged);
-    //.on("dragend", dragended);
-    
-function dragged(d) {
-    var t=d3.select(this);                                                                                                                                  
-    var x=d3.transform(t.attr('transform')).translate[0]+d3.event.dx;
-    var y=d3.transform(t.attr('transform')).translate[1]+d3.event.dy;
-    d3.select(this).attr('transform', 'translate('+ x +','+ y +')');
-    
-    }
+var num_spie = [1,2,3]; 
 
-function redraw(or) {
-    
-    if (amperometro) {
-	var val=amperometro.select('#data').datum().value;
-	amperometro.remove();
-    }    
-    amperometro_properties.axis_orient=or;    
-    amperometro=createStrumento(amperometro_properties);
-    amperometro.call(drag);
-}
-
-function drawbox(str) {
-    
-    str.append('rect')
-    	.attr("x",str.node().getBBox().x)
-    	.attr("y",str.node().getBBox().y)
-    	.attr('width',str.node().getBBox().width)
-    	.attr('height',str.node().getBBox().height)
-    	.attr('fill','none').attr('stroke','green')
-    str.append('circle')
-    	.attr('cx',str.node().getBBox().x)
-    	.attr('cy',str.node().getBBox().y)
-    	.attr('r',2)
-    	.attr('fill','red');
-    return [str.node().getBBox().x,str.node().getBBox().y,str.node().getBBox().width,str.node().getBBox().height];
-}
 
 function initDashBoard() {
     
     d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: azure; width: 425px; float:left");
+
     amperometro=createStrumento(amperometro_properties);
     voltmetro=createStrumento(voltmetro_properties);
     wattmetro=createStrumento(wattmetro_properties);
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
-    
+    d3.select("body").append("div").attr("id","spie").attr("style","background-color: azure; width: 125px; float:left");
+    var s=createSpia(spia_property);  
+
+/*
+    var spie = d3.select("body").selectAll(s.)
+	.data(num_spie)
+	.enter()
+	.append('spia');
+*/
+
+
+    //s_autoclave=createSpia(luce_autoclave);
+    //s_pompa_pozzo=createSpia(luce_pompa_pozzo);
+
+
     var n=0;
     d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 145px; height: 500px");
     d3.select("body").append("div").attr("id","hb");//.attr("style","float:left;");
@@ -237,8 +269,8 @@ function initDashBoard() {
 //	$('#IO').html(JSON.parse(event.data).IO1);
 //	$('#IO').append(JSON.parse(event.data).IO2);
 
-	$('#IO').append(JSON.parse(event.data).Stati.Aut + ':Autoclave' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.Pozzo + ':posso' + '</br>');
+	$('#IO').append('<p>' + JSON.parse(event.data).Stati.Aut + ':Autoclave' + '</p>');
+	$('#IO').append(JSON.parse(event.data).Stati.Pozzo + ':pozzo' + '</br>');
 	$('#IO').append(JSON.parse(event.data).Stati.Riemp + ':riempimento serbatoio' + '</br>');
 	$('#IO').append(JSON.parse(event.data).Stati.LE + ':luci esterne' + '</br>');
 	$('#IO').append(JSON.parse(event.data).Stati.LG_4 + ': luci garage da 4' + '</br>');
@@ -254,9 +286,10 @@ function initDashBoard() {
 	$('#IO').append(JSON.parse(event.data).Stati.genaut + ':Generale autoclave' + '</br>');
 	$('#IO').append(JSON.parse(event.data).Stati.lucant + ':luce cantinetta' + '</br>');
 
+	////////////////////////////////////////////////
+	// heart beat per vedere se connessione è attiva
 	var c = $('#hb').html();
 	n++;
-	//alert(c);
 	if (n == 5) {
 	    if (c=='*') {
 		$('#hb').html('&nbsp');
