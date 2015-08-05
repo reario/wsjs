@@ -241,15 +241,17 @@ function initDashBoard() {
     d3.select("body").append("div").attr("id","spie").attr("style","width: 145px; height: 500px; float:left");
     d3.select("#spie").selectAll("div").data([1,2,3,4]).enter().append("div")
 	.attr("id",function(d) {return d})
-	.attr("style","background-color: orange; width: 145px; height: 22px; border: 1px solid black; float:left;")
+	.attr("style","background-color: orange; width: 145px; height: 24px; border: 1px solid grey; float:left;")
 	.append("svg")
 	.append("g")
 	.append("circle")
-	.attr("cx",10)
-	.attr("cy",10)
+	.attr("id",function(d) {return "c" + d})
+	.attr("cx",12)
+	.attr("cy",12)
 	.attr("r",10)
-	.style("fill","blue")
-;
+	.style("fill","white")
+	.style("stroke", "black")
+	.style("stroke-width", "2px");
 
 
 
@@ -320,13 +322,16 @@ function initDashBoard() {
 
 	////////////////////////////////////////////////
 	// heart beat per vedere se connessione è attiva
+	var b = d3.select("#c1");
 	var c = $('#hb').html();
 	n++;
 	if (n == 5) {
 	    if (c=='*') {
 		$('#hb').html('&nbsp');
+		b.style("fill","white");
 	    } else {
 		$('#hb').html('*');
+		b.style("fill","red");
 	    }
 	    n=0;
 	}
