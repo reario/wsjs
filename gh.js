@@ -129,19 +129,20 @@ function createSpia(spia_properties) {
     var spia=d3.select('#spie').append("svg")
 	.attr("width", (spia_properties.r)*2+1)
         .attr("height", (spia_properties.r)*2+1)
-	.attr("id",spia_properties.name);
-    
+	.attr("id",spia_properties.name)
+	.append("g").attr("id","s");
+
     var cx=spia.node().getBBox().x+(spia_properties.r);
     var cy=spia.node().getBBox().y+(spia_properties.r);
     
-    spia.append("g").append("circle")
+    spia.append("circle")
 	.attr("cx",cx)
 	.attr("cy",cy)
 	.attr("r",spia_properties.r)
 
 	.style("fill",spia_properties.bordercolor);
     
-    spia.append("g").append("circle")
+    spia.append("circle")
 	.attr("cx",cx)
 	.attr("cy",cy)
 	.attr("r",spia_properties.r-2)
@@ -150,7 +151,11 @@ function createSpia(spia_properties) {
 
     return spia
 };
-	       
+/*
+Also, it's fairly easy to replicate items using D3 itself, by wrapping
+whatever you are about to add in an svg:g element and then using
+selectAll + data + enter + append.
+*/	       
 //====================================================================================================
 // Funzione per la creazione dei bottoni di comando
 //====================================================================================================
@@ -232,9 +237,36 @@ function initDashBoard() {
     wattmetro=createStrumento(wattmetro_properties);
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
-    d3.select("body").append("div").attr("id","spie").attr("style","background-color: azure; width: 125px; float:left");
-    var s=createSpia(spia_property);  
 
+    d3.select("body").append("div").attr("id","spie").attr("style","width: 145px; height: 500px; float:left");
+    d3.select("#spie").selectAll("div").data([1,2,3,4]).enter().append("div")
+	.attr("id",function(d) {return d})
+	.attr("style","background-color: orange; width: 145px; height: 22px; border: 1px solid black; float:left;")
+	.append("svg")
+	.append("g")
+	.append("circle")
+	.attr("cx",10)
+	.attr("cy",10)
+	.attr("r",10)
+	.style("fill","blue")
+;
+
+
+
+
+//    var s=createSpia(spia_property);  
+
+/*
+    var spia=d3.select('#spie').append("svg")
+        .attr("width", (spia_property.r)*2+1)
+        .attr("height",(spia_property.r)*2+1)
+        .attr("id",spia_property.name)
+        
+
+    d3.select('#spia').selectAll('g').data([1,2,3]).enter()
+	.append('g').attr("id",function(d) {return d})
+	.append('circle').attr("cx",10).attr("cy",10).attr("r",10)
+*/
 /*
     var spie = d3.select("body").selectAll(s.)
 	.data(num_spie)
@@ -248,8 +280,8 @@ function initDashBoard() {
 
 
     var n=0;
-    d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 145px; height: 500px");
-    d3.select("body").append("div").attr("id","hb");//.attr("style","float:left;");
+    d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 145px; height: 500px;");
+    d3.select("body").append("div").attr("id","hb").attr("style","background-color: orange; width: 10px; height: 10px; float:left;");
     // $('#hb').html('*');
    // var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
    var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
