@@ -220,7 +220,7 @@ function initDashBoard() {
     d3.select("body").append("div").attr("id","hb");//.attr("style","float:left;");
     // $('#hb').html('*');
    var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
-   // var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
+   //var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
     
     ws.onmessage = function (event) {
 	var A=parseFloat(JSON.parse(event.data).Energia.I);

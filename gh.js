@@ -225,12 +225,33 @@ var luce_pompa_pozzo={
     ,"colorOFF":'white'
 };
 
-var num_spie = [1,2,3]; 
+var array_spie = [
+"AUTOCLAVE",
+"POMPA_SOMMERSA",
+"RIEMPIMENTO",
+"LUCI_ESTERNE_SOTTO",
+"CENTR_R8",
+"LUCI_GARAGE_DA_4",
+"LUCI_GARAGE_DA_2",
+"LUCI_TAVERNA_1_di_2",
+"LUCI_TAVERNA_2_di_2",
+"INTERNET",
+"C9912",
+"LUCI_CUN_LUN",
+"LUCI_CUN_COR",
+"LUCI_STUDIO_SOTTO",
+"LUCI_ANDRONE_SCALE",
+"GENERALE_AUTOCLAVE",
+"LUCI_CANTINETTA"
+];
 
 
 function initDashBoard() {
     
     d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: azure; width: 425px; float:left");
+    d3.select("body").append("div").attr("id","spie").attr("style","width: 145px; height: 500px; float:left");
+    d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 145px; height: 500px;");
+    d3.select("body").append("div").attr("id","hb").attr("style","background-color: orange; width: 10px; height: 10px; float:left;");
 
     amperometro=createStrumento(amperometro_properties);
     voltmetro=createStrumento(voltmetro_properties);
@@ -238,14 +259,15 @@ function initDashBoard() {
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
 
-    d3.select("body").append("div").attr("id","spie").attr("style","width: 145px; height: 500px; float:left");
-    d3.select("#spie").selectAll("div").data([1,2,3,4]).enter().append("div")
-	.attr("id",function(d) {return d})
+
+
+    d3.select("#spie").selectAll("div").data(array_spie).enter().append("div")
+	.attr("id",function(d) {return "div_" + d})
 	.attr("style","background-color: orange; width: 145px; height: 24px; border: 1px solid grey; float:left;")
 	.append("svg")
 	.append("g")
 	.append("circle")
-	.attr("id",function(d) {return "c" + d})
+	.attr("id",function(d) {return d})
 	.attr("cx",12)
 	.attr("cy",12)
 	.attr("r",10)
@@ -254,39 +276,10 @@ function initDashBoard() {
 	.style("stroke-width", "2px");
 
 
-
-
-//    var s=createSpia(spia_property);  
-
-/*
-    var spia=d3.select('#spie').append("svg")
-        .attr("width", (spia_property.r)*2+1)
-        .attr("height",(spia_property.r)*2+1)
-        .attr("id",spia_property.name)
-        
-
-    d3.select('#spia').selectAll('g').data([1,2,3]).enter()
-	.append('g').attr("id",function(d) {return d})
-	.append('circle').attr("cx",10).attr("cy",10).attr("r",10)
-*/
-/*
-    var spie = d3.select("body").selectAll(s.)
-	.data(num_spie)
-	.enter()
-	.append('spia');
-*/
-
-
-    //s_autoclave=createSpia(luce_autoclave);
-    //s_pompa_pozzo=createSpia(luce_pompa_pozzo);
-
-
     var n=0;
-    d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 145px; height: 500px;");
-    d3.select("body").append("div").attr("id","hb").attr("style","background-color: orange; width: 10px; height: 10px; float:left;");
-    // $('#hb').html('*');
-   // var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
-   var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
+    
+    // var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
+    var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
     
     ws.onmessage = function (event) {
 	var A=parseFloat(JSON.parse(event.data).Energia.I);
@@ -299,39 +292,47 @@ function initDashBoard() {
 	move(wattmetro,W);
 	move(pressostato,Bar);
 	move(pressostato_pozzo,Bar_pozzo);
-	$('#IO').html('</br>');
-//	$('#IO').html(JSON.parse(event.data).IO1);
-//	$('#IO').append(JSON.parse(event.data).IO2);
 
-	$('#IO').append('<p>' + JSON.parse(event.data).Stati.Aut + ':Autoclave' + '</p>');
-	$('#IO').append(JSON.parse(event.data).Stati.Pozzo + ':pozzo' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.Riemp + ':riempimento serbatoio' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.LE + ':luci esterne' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.LG_4 + ': luci garage da 4' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.LG_2 + ':luce garage da 2' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.Tav1 + ':taverna 1' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.Tav2 + ':taverna 2' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.INT + ':internet' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.C9912 + ':9912' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.culu + ':Cunicolo lungo' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.cuco + ':Cunicolo corto' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.lust + ':luci studio sotto' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.luansc + ':luci scale sotto' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.genaut + ':Generale autoclave' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.lucant + ':luce cantinetta' + '</br>');
+     $.each(array_spie, function(index, value) {
+	 d3.select('#'+value).style("fill",function(d) { if (JSON.parse(event.data).Stati[value]==1) return "red"; else {return "white"}});
+     });
+
+
+
+	//	$('#IO').html('</br>');
+	//	$('#IO').html(JSON.parse(event.data).IO1);
+	//	$('#IO').append(JSON.parse(event.data).IO2);
+	//	$('#IO').append(JSON.parse(event.data).Stati.AUTOCLAVE + ':Autoclave' + '</p></br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.Pozzo + ':pozzo' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.Riemp + ':riempimento serbatoio' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.LE + ':luci esterne' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.LG_4 + ': luci garage da 4' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.LG_2 + ':luce garage da 2' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.Tav1 + ':taverna 1' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.Tav2 + ':taverna 2' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.INT + ':internet' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.C9912 + ':9912' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.culu + ':Cunicolo lungo' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.cuco + ':Cunicolo corto' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.lust + ':luci studio sotto' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.luansc + ':luci scale sotto' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.genaut + ':Generale autoclave' + '</br>');
+	// $('#IO').append(JSON.parse(event.data).Stati.lucant + ':luce cantinetta' + '</br>');
+
 
 	////////////////////////////////////////////////
 	// heart beat per vedere se connessione è attiva
-	var b = d3.select("#c1");
+	//$('#IO').html('</br>');
+//	var b = d3.select("#AUTOCLAVE");
 	var c = $('#hb').html();
 	n++;
 	if (n == 5) {
 	    if (c=='*') {
 		$('#hb').html('&nbsp');
-		b.style("fill","white");
+//		b.style("fill","white");
 	    } else {
 		$('#hb').html('*');
-		b.style("fill","red");
+//		b.style("fill","red");
 	    }
 	    n=0;
 	}
