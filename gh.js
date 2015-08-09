@@ -248,9 +248,9 @@ var array_spie = [
 
 function initDashBoard() {
     
-    d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: azure; width: 425px; float:left");
-    d3.select("body").append("div").attr("id","spie").attr("style","width: 145px; height: 500px; float:left");
-    d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 145px; height: 500px;");
+    d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: #E4E2EE; width: 425px; float:left");
+    d3.select("body").append("div").attr("id","spie").attr("style"," width: 145px; height: 500px; float:left");
+    d3.select("body").append("div").attr("id","spie2").attr("style"," width: 145px; height: 500px; float:left");
     d3.select("body").append("div").attr("id","hb").attr("style","background-color: orange; width: 10px; height: 10px; float:left;");
 
     amperometro=createStrumento(amperometro_properties);
@@ -263,7 +263,17 @@ function initDashBoard() {
 
     d3.select("#spie").selectAll("div").data(array_spie).enter().append("div")
 	.attr("id",function(d) {return "div_" + d})
-	.attr("style","background-color: orange; width: 145px; height: 24px; border: 1px solid grey; float:left;")
+	.attr("style","background-color: #DAD8E8; width: 145px; height: 24px; border: 1px solid grey; float:right;")
+	.html(function(d) {return d});
+
+    t=d3.select("#spie2").append("table");
+    tb=t.append("tbody");
+    th=t.append("thead");
+    th.append("tr").append("td").html("SPIE");
+    
+    tb.selectAll("tr").data(array_spie).enter().append("tr").append("td").html(function (d) {return d});
+
+/*
 	.append("svg")
 	.append("g")
 	.append("circle")
@@ -274,6 +284,7 @@ function initDashBoard() {
 	.style("fill","white")
 	.style("stroke", "black")
 	.style("stroke-width", "2px");
+*/
 
 
     var n=0;
@@ -294,36 +305,17 @@ function initDashBoard() {
 	move(pressostato_pozzo,Bar_pozzo);
 
      $.each(array_spie, function(index, value) {
-	 d3.select('#'+value).style("fill",function(d) { if (JSON.parse(event.data).Stati[value]==1) return "red"; else {return "white"}});
+	 if (JSON.parse(event.data).Stati[value]==1) {
+	     // d3.select('#'+value).style("fill","red");
+	     d3.select('#div_'+value)
+		 .attr("style","background-color: #C85AB8; width: 145px; height: 24px; border: 1px solid grey; float:right;");
+	 } else {
+	     d3.select('#div_'+value) 	     	 
+		 .attr("style","background-color: #DAD8E8; width: 145px; height: 24px; border: 1px solid grey; float:right;");	     
+	 }
+	 
      });
 
-
-
-	//	$('#IO').html('</br>');
-	//	$('#IO').html(JSON.parse(event.data).IO1);
-	//	$('#IO').append(JSON.parse(event.data).IO2);
-	//	$('#IO').append(JSON.parse(event.data).Stati.AUTOCLAVE + ':Autoclave' + '</p></br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.Pozzo + ':pozzo' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.Riemp + ':riempimento serbatoio' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.LE + ':luci esterne' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.LG_4 + ': luci garage da 4' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.LG_2 + ':luce garage da 2' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.Tav1 + ':taverna 1' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.Tav2 + ':taverna 2' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.INT + ':internet' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.C9912 + ':9912' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.culu + ':Cunicolo lungo' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.cuco + ':Cunicolo corto' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.lust + ':luci studio sotto' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.luansc + ':luci scale sotto' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.genaut + ':Generale autoclave' + '</br>');
-	// $('#IO').append(JSON.parse(event.data).Stati.lucant + ':luce cantinetta' + '</br>');
-
-
-	////////////////////////////////////////////////
-	// heart beat per vedere se connessione è attiva
-	//$('#IO').html('</br>');
-//	var b = d3.select("#AUTOCLAVE");
 	var c = $('#hb').html();
 	n++;
 	if (n == 5) {
