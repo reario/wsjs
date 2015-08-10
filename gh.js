@@ -260,18 +260,19 @@ function initDashBoard() {
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
 
 
-
+/*
     d3.select("#spie").selectAll("div").data(array_spie).enter().append("div")
 	.attr("id",function(d) {return "div_" + d})
 	.attr("style","background-color: #DAD8E8; width: 145px; height: 24px; border: 1px solid grey; float:right;")
 	.html(function(d) {return d});
+*/
 
-    t=d3.select("#spie2").append("table");
+    t=d3.select("#spie2").append("table").attr("class","tspie").attr("style","width:100%");
     tb=t.append("tbody");
-    th=t.append("thead");
-    th.append("tr").append("td").html("SPIE");
+//    th=t.append("thead");
+//    th.append("tr").append("td").html("SPIE");
     
-    tb.selectAll("tr").data(array_spie).enter().append("tr").append("td").html(function (d) {return d});
+    tb.selectAll("tr").data(array_spie).enter().append("tr").append("td").attr("id",function (d) {return d}).html(function (d) {return d});
 
 /*
 	.append("svg")
@@ -306,12 +307,11 @@ function initDashBoard() {
 
      $.each(array_spie, function(index, value) {
 	 if (JSON.parse(event.data).Stati[value]==1) {
-	     // d3.select('#'+value).style("fill","red");
-	     d3.select('#div_'+value)
-		 .attr("style","background-color: #C85AB8; width: 145px; height: 24px; border: 1px solid grey; float:right;");
+	     d3.select('#'+value).attr("class","tdon");
+	     //d3.select('#div_'+value).attr("style","background-color: #C85AB8; width: 145px; height: 24px; border: 1px solid grey; float:right;");
 	 } else {
-	     d3.select('#div_'+value) 	     	 
-		 .attr("style","background-color: #DAD8E8; width: 145px; height: 24px; border: 1px solid grey; float:right;");	     
+	     d3.select('#'+value).attr("class","tdoff");
+	     // d3.select('#div_'+value).attr("style","background-color: #DAD8E8; width: 145px; height: 24px; border: 1px solid grey; float:right;");	     
 	 }
 	 
      });

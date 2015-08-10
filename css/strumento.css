@@ -23,3 +23,23 @@
     fill: red;
     stroke: black;
 }
+
+.tdon {
+    background-color: red;
+}
+
+.tdoff {
+    background-color: white;
+}
+
+.tspie {
+    border: 1px solid black;
+    padding: 3px;
+}
+
+td {
+    border: 1px solid green;
+    padding: 3px;
+}
+
+
