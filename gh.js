@@ -165,9 +165,6 @@ selectAll + data + enter + append.
 //====================================================================================================
 
 
-
-
-
 var height = 500, width = 500;
 
 
@@ -198,59 +195,40 @@ var pressostato_pozzo_properties={"scaleparam": {"range":[10,height-60], "domain
                     ,"name":"pressostato pozzo"
                    };
 //----------------------------------------------------------------------------------------
-var spia_property={
-    "name":'spia'
-    ,"r":10
-    ,"border":2
-    ,"borderColor":'grey'
-    ,"colorON":'red'
-    ,"colorOFF":'white'
+
+var assoc_array_spie = {
+"AUTOCLAVE":"Autoclave",
+"POMPA_SOMMERSA":"Pozzo", 
+"RIEMPIMENTO":"Serbatoio",
+"LUCI_ESTERNE_SOTTO":"Luci Esterne",
+"CENTR_R8":"R8",
+"LUCI_GARAGE_DA_4":"Garage 4",
+"LUCI_GARAGE_DA_2":"Garage 2",
+"LUCI_TAVERNA_1_di_2":"Taverna 1",
+"LUCI_TAVERNA_2_di_2":"Taverna 2",
+"INTERNET":"Internet",
+"C9912":"C9912",
+"LUCI_CUN_LUN":"Cun.Lungo",
+"LUCI_CUN_COR":"Cun.Corto",
+"LUCI_STUDIO_SOTTO":"Studio",
+"LUCI_ANDRONE_SCALE":"Scale",
+"GENERALE_AUTOCLAVE":"Generale Autoclave",
+"LUCI_CANTINETTA":"Cantinetta"
 };
 
-var luce_autoclave={
-    "name":'autoclave'
-    ,"r":10
-    ,"border":2
-    ,"borderColor":'grey'
-    ,"colorON":'red'
-    ,"colorOFF":'white'
-};
 
-var luce_pompa_pozzo={
-    "name":'pompa_pozzo'
-    ,"r":10
-    ,"border":2
-    ,"borderColor":'grey'
-    ,"colorON":'red'
-    ,"colorOFF":'white'
-};
 
-var array_spie = [
-"AUTOCLAVE",
-"POMPA_SOMMERSA",
-"RIEMPIMENTO",
-"LUCI_ESTERNE_SOTTO",
-"CENTR_R8",
-"LUCI_GARAGE_DA_4",
-"LUCI_GARAGE_DA_2",
-"LUCI_TAVERNA_1_di_2",
-"LUCI_TAVERNA_2_di_2",
-"INTERNET",
-"C9912",
-"LUCI_CUN_LUN",
-"LUCI_CUN_COR",
-"LUCI_STUDIO_SOTTO",
-"LUCI_ANDRONE_SCALE",
-"GENERALE_AUTOCLAVE",
-"LUCI_CANTINETTA"
-];
+function changecolor(w) {
 
+d3.select('#hb').html("0");
+
+}
 
 function initDashBoard() {
     
     d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: #E4E2EE; width: 425px; float:left");
+    // d3.select("body").append("div").attr("id","spie").attr("style"," width: 145px; height: 500px; float:left");
     d3.select("body").append("div").attr("id","spie").attr("style"," width: 145px; height: 500px; float:left");
-    d3.select("body").append("div").attr("id","spie2").attr("style"," width: 145px; height: 500px; float:left");
     d3.select("body").append("div").attr("id","hb").attr("style","background-color: orange; width: 10px; height: 10px; float:left;");
 
     amperometro=createStrumento(amperometro_properties);
@@ -259,40 +237,23 @@ function initDashBoard() {
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
 
-
-/*
-    d3.select("#spie").selectAll("div").data(array_spie).enter().append("div")
-	.attr("id",function(d) {return "div_" + d})
-	.attr("style","background-color: #DAD8E8; width: 145px; height: 24px; border: 1px solid grey; float:right;")
-	.html(function(d) {return d});
-*/
-
-    t=d3.select("#spie2").append("table").attr("class","tspie").attr("style","width:100%");
+    t=d3.select("#spie").append("table").attr("class","tspie").attr("style","width:100%");
     tb=t.append("tbody");
-//    th=t.append("thead");
-//    th.append("tr").append("td").html("SPIE");
     
-    tb.selectAll("tr").data(array_spie).enter().append("tr").append("td").attr("id",function (d) {return d}).html(function (d) {return d});
-
-/*
-	.append("svg")
-	.append("g")
-	.append("circle")
-	.attr("id",function(d) {return d})
-	.attr("cx",12)
-	.attr("cy",12)
-	.attr("r",10)
-	.style("fill","white")
-	.style("stroke", "black")
-	.style("stroke-width", "2px");
-*/
+    tb.selectAll("tr").data(d3.keys(assoc_array_spie))
+	.enter()
+	.append("tr")
+	.append("td")
+  	.on("click",function (d) {ws.send(d)})
+	.attr("id",function (d) {return d})
+	.html(function (d) {return assoc_array_spie[d]});
 
 
     var n=0;
     
     // var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
     var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
-    
+  //  d3.select('#AUTOCLAVE').on("click",function() {ws.send("pippo")});    
     ws.onmessage = function (event) {
 	var A=parseFloat(JSON.parse(event.data).Energia.I);
 	var V=parseFloat(JSON.parse(event.data).Energia.V);
@@ -305,31 +266,26 @@ function initDashBoard() {
 	move(pressostato,Bar);
 	move(pressostato_pozzo,Bar_pozzo);
 
-     $.each(array_spie, function(index, value) {
-	 if (JSON.parse(event.data).Stati[value]==1) {
-	     d3.select('#'+value).attr("class","tdon");
-	     //d3.select('#div_'+value).attr("style","background-color: #C85AB8; width: 145px; height: 24px; border: 1px solid grey; float:right;");
+     $.each(assoc_array_spie, function(index, value) {
+	 if (JSON.parse(event.data).Stati[index]==1) {
+	     d3.select('#'+index).attr("class","tdon");
 	 } else {
-	     d3.select('#'+value).attr("class","tdoff");
-	     // d3.select('#div_'+value).attr("style","background-color: #DAD8E8; width: 145px; height: 24px; border: 1px solid grey; float:right;");	     
+	     d3.select('#'+index).attr("class","tdoff");
 	 }
 	 
-     });
-
+     });	
 	var c = $('#hb').html();
 	n++;
 	if (n == 5) {
 	    if (c=='*') {
 		$('#hb').html('&nbsp');
-//		b.style("fill","white");
 	    } else {
 		$('#hb').html('*');
-//		b.style("fill","red");
 	    }
 	    n=0;
 	}
 	
-    }    
+    } // ws.onmessage
 }
 
   

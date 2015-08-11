@@ -1,4 +1,5 @@
 //====================================================================================================
+// Funzione per la creazione degli assi graduati
 //====================================================================================================
 function createStrumento(strumento_properties) {    
     // empty containers
@@ -70,13 +71,11 @@ function createStrumento(strumento_properties) {
     // // sposta l'asse e il cursore il giusto per farlo rimanere nello schermo
     var bboxx = strumento.node().getBBox().x<0?(-1*(strumento.node().getBBox().x)):0;
     var bboxy = strumento.node().getBBox().y<0?(-1*(strumento.node().getBBox().y)):0;
+
     //////////////////////////////////
     // Display digit
     //////////////////////////////////
-    //amperometro.append('rect').attr('x',w[0]).attr('y',w[1]+w[3]).attr('height',45).attr('width',w[2]) // vale per verticale
-    
     strumento.attr("transform","translate("+ (bboxx) +"," + (bboxy) +")");
-
     if ((orient == "left" || orient=="right")) {
 	var dx=strumento.node().getBBox().x;
 	var dy=strumento.node().getBBox().y + strumento.node().getBBox().height+15;
@@ -123,6 +122,46 @@ function move(str,valore) {
 }
 
 //====================================================================================================
+// Funzione per la creazione delle SPIE luminose
+//====================================================================================================
+
+function createSpia(spia_properties) {
+    var spia=d3.select('#spie').append("svg")
+	.attr("width", (spia_properties.r)*2+1)
+        .attr("height", (spia_properties.r)*2+1)
+	.attr("id",spia_properties.name)
+	.append("g").attr("id","s");
+
+    var cx=spia.node().getBBox().x+(spia_properties.r);
+    var cy=spia.node().getBBox().y+(spia_properties.r);
+    
+    spia.append("circle")
+	.attr("cx",cx)
+	.attr("cy",cy)
+	.attr("r",spia_properties.r)
+
+	.style("fill",spia_properties.bordercolor);
+    
+    spia.append("circle")
+	.attr("cx",cx)
+	.attr("cy",cy)
+	.attr("r",spia_properties.r-2)
+
+	.style("fill",spia_properties.colorON);
+
+    return spia
+};
+/*
+Also, it's fairly easy to replicate items using D3 itself, by wrapping
+whatever you are about to add in an svg:g element and then using
+selectAll + data + enter + append.
+*/	       
+//====================================================================================================
+// Funzione per la creazione dei bottoni di comando
+//====================================================================================================
+
+
+//====================================================================================================
 //====================================================================================================
 
 
@@ -158,69 +197,101 @@ var pressostato_pozzo_properties={"scaleparam": {"range":[10,height-60], "domain
                     ,"axis_orient":'left'
                     ,"name":"pressostato pozzo"
                    };
+//----------------------------------------------------------------------------------------
+var spia_property={
+    "name":'spia'
+    ,"r":10
+    ,"border":2
+    ,"borderColor":'grey'
+    ,"colorON":'red'
+    ,"colorOFF":'white'
+};
 
+var luce_autoclave={
+    "name":'autoclave'
+    ,"r":10
+    ,"border":2
+    ,"borderColor":'grey'
+    ,"colorON":'red'
+    ,"colorOFF":'white'
+};
 
-function createSVG(){
-    return d3.select("body").append("svg")
-        .attr("width", width)
-        .attr("height", height);
-}
+var luce_pompa_pozzo={
+    "name":'pompa_pozzo'
+    ,"r":10
+    ,"border":2
+    ,"borderColor":'grey'
+    ,"colorON":'red'
+    ,"colorOFF":'white'
+};
 
-    var drag = d3.behavior.drag()
-    //.on("dragstart", dragstarted)
-	.on("drag", dragged);
-    //.on("dragend", dragended);
-    
-function dragged(d) {
-    var t=d3.select(this);                                                                                                                                  
-    var x=d3.transform(t.attr('transform')).translate[0]+d3.event.dx;
-    var y=d3.transform(t.attr('transform')).translate[1]+d3.event.dy;
-    d3.select(this).attr('transform', 'translate('+ x +','+ y +')');
-    
-    }
+var array_spie = [
+"AUTOCLAVE",
+"POMPA_SOMMERSA",
+"RIEMPIMENTO",
+"LUCI_ESTERNE_SOTTO",
+"CENTR_R8",
+"LUCI_GARAGE_DA_4",
+"LUCI_GARAGE_DA_2",
+"LUCI_TAVERNA_1_di_2",
+"LUCI_TAVERNA_2_di_2",
+"INTERNET",
+"C9912",
+"LUCI_CUN_LUN",
+"LUCI_CUN_COR",
+"LUCI_STUDIO_SOTTO",
+"LUCI_ANDRONE_SCALE",
+"GENERALE_AUTOCLAVE",
+"LUCI_CANTINETTA"
+];
 
-function redraw(or) {
-    
-    if (amperometro) {
-	var val=amperometro.select('#data').datum().value;
-	amperometro.remove();
-    }    
-    amperometro_properties.axis_orient=or;    
-    amperometro=createStrumento(amperometro_properties);
-    amperometro.call(drag);
-}
-
-function drawbox(str) {
-    
-    str.append('rect')
-    	.attr("x",str.node().getBBox().x)
-    	.attr("y",str.node().getBBox().y)
-    	.attr('width',str.node().getBBox().width)
-    	.attr('height',str.node().getBBox().height)
-    	.attr('fill','none').attr('stroke','green')
-    str.append('circle')
-    	.attr('cx',str.node().getBBox().x)
-    	.attr('cy',str.node().getBBox().y)
-    	.attr('r',2)
-    	.attr('fill','red');
-    return [str.node().getBBox().x,str.node().getBBox().y,str.node().getBBox().width,str.node().getBBox().height];
-}
 
 function initDashBoard() {
     
-    d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: azure; width: 425px; float:left");
+    d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: #E4E2EE; width: 425px; float:left");
+    d3.select("body").append("div").attr("id","spie").attr("style"," width: 145px; height: 500px; float:left");
+    d3.select("body").append("div").attr("id","spie2").attr("style"," width: 145px; height: 500px; float:left");
+    d3.select("body").append("div").attr("id","hb").attr("style","background-color: orange; width: 10px; height: 10px; float:left;");
+
     amperometro=createStrumento(amperometro_properties);
     voltmetro=createStrumento(voltmetro_properties);
     wattmetro=createStrumento(wattmetro_properties);
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
+
+
+/*
+    d3.select("#spie").selectAll("div").data(array_spie).enter().append("div")
+	.attr("id",function(d) {return "div_" + d})
+	.attr("style","background-color: #DAD8E8; width: 145px; height: 24px; border: 1px solid grey; float:right;")
+	.html(function(d) {return d});
+*/
+
+    t=d3.select("#spie2").append("table").attr("class","tspie").attr("style","width:100%");
+    tb=t.append("tbody");
+//    th=t.append("thead");
+//    th.append("tr").append("td").html("SPIE");
     
+    tb.selectAll("tr").data(array_spie).enter().append("tr").append("td").attr("id",function (d) {return d}).html(function (d) {return d});
+
+/*
+	.append("svg")
+	.append("g")
+	.append("circle")
+	.attr("id",function(d) {return d})
+	.attr("cx",12)
+	.attr("cy",12)
+	.attr("r",10)
+	.style("fill","white")
+	.style("stroke", "black")
+	.style("stroke-width", "2px");
+*/
+
+
     var n=0;
-    d3.select("body").append("div").attr("id","IO").attr("style","float:left; background-color: aqua; width: 145px; height: 500px");
-    d3.select("body").append("div").attr("id","hb");//.attr("style","float:left;");
-    // $('#hb').html('*');
-   var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
-   //var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
+    
+    var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
+    //var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
     
     ws.onmessage = function (event) {
 	var A=parseFloat(JSON.parse(event.data).Energia.I);
@@ -233,35 +304,27 @@ function initDashBoard() {
 	move(wattmetro,W);
 	move(pressostato,Bar);
 	move(pressostato_pozzo,Bar_pozzo);
-	$('#IO').html('</br>');
-//	$('#IO').html(JSON.parse(event.data).IO1);
-//	$('#IO').append(JSON.parse(event.data).IO2);
 
-	$('#IO').append(JSON.parse(event.data).Stati.Aut + '<p>' + ':Autoclave' + '</p></br>');
-	$('#IO').append(JSON.parse(event.data).Stati.Pozzo + ':posso' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.Riemp + ':riempimento serbatoio' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.LE + ':luci esterne' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.LG_4 + ': luci garage da 4' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.LG_2 + ':luce garage da 2' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.Tav1 + ':taverna 1' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.Tav2 + ':taverna 2' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.INT + ':internet' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.C9912 + ':9912' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.culu + ':Cunicolo lungo' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.cuco + ':Cunicolo corto' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.lust + ':luci studio sotto' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.luansc + ':luci scale sotto' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.genaut + ':Generale autoclave' + '</br>');
-	$('#IO').append(JSON.parse(event.data).Stati.lucant + ':luce cantinetta' + '</br>');
+     $.each(array_spie, function(index, value) {
+	 if (JSON.parse(event.data).Stati[value]==1) {
+	     d3.select('#'+value).attr("class","tdon");
+	     //d3.select('#div_'+value).attr("style","background-color: #C85AB8; width: 145px; height: 24px; border: 1px solid grey; float:right;");
+	 } else {
+	     d3.select('#'+value).attr("class","tdoff");
+	     // d3.select('#div_'+value).attr("style","background-color: #DAD8E8; width: 145px; height: 24px; border: 1px solid grey; float:right;");	     
+	 }
+	 
+     });
 
 	var c = $('#hb').html();
 	n++;
-	//alert(c);
 	if (n == 5) {
 	    if (c=='*') {
 		$('#hb').html('&nbsp');
+//		b.style("fill","white");
 	    } else {
 		$('#hb').html('*');
+//		b.style("fill","red");
 	    }
 	    n=0;
 	}
