@@ -196,35 +196,15 @@ var pressostato_pozzo_properties={"scaleparam": {"range":[10,height-60], "domain
                    };
 //----------------------------------------------------------------------------------------
 
-
-  var array_spie = {
-  "AUTOCLAVE":"Autoclave",
-  "POMPA_SOMMERSA":"Pozzo", 
-  "RIEMPIMENTO":"Serbatoio",
-  "LUCI_ESTERNE_SOTTO":"Luci Esterne",
-  "CENTR_R8":"R8",
-  "LUCI_GARAGE_DA_4":"Garage 4",
-  "LUCI_GARAGE_DA_2":"Garage 2",
-  "LUCI_TAVERNA_1_di_2":"Taverna 1",
-  "LUCI_TAVERNA_2_di_2":"Taverna 2",
-  "INTERNET":"Internet",
-  "C9912":"C9912",
-  "LUCI_CUN_LUN":"Cun.Lungo",
-  "LUCI_CUN_COR":"Cun.Corto",
-  "LUCI_STUDIO_SOTTO":"Studio",
-  "LUCI_ANDRONE_SCALE":"Scale",
-  "GENERALE_AUTOCLAVE":"Generale Autoclave",
-  "LUCI_CANTINETTA":"Cantinetta"
-  };
-
-
 var array_spie;
 var assoc_artray_bobine;
+var n=0;
 
 function initDashBoard() {
     
     d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: #E4E2EE; width: 425px; float:left");
     d3.select("body").append("div").attr("id","spie").attr("style"," width: 145px; height: 500px; float:left");
+    d3.select("body").append("div").attr("id","bobine").attr("style"," width: 145px; height: 500px; float:left");
     d3.select("body").append("div").attr("id","hb").attr("style","background-color: orange; width: 10px; height: 10px; float:left;");
 
     amperometro=createStrumento(amperometro_properties);
@@ -238,19 +218,34 @@ function initDashBoard() {
 	assoc_array_spie=JSON.parse(event.data).spie;
 	assoc_array_bobine=JSON.parse(event.data).bobine;
 	ws_spie_bobine.close();
-	t=d3.select("#spie").append("table").attr("class","tspie").attr("style","width:100%");
-	tb=t.append("tbody");    
-	tb.selectAll("tr")
+
+	ts=d3.select("#spie").append("table").attr("class","tspie").attr("style","width:100%");
+	tsb=ts.append("tbody");    
+	tsb.selectAll("tr")
 	    .data(d3.keys(assoc_array_spie))
 	    .enter()
 	    .append("tr")
 	    .append("td")
-  	    .on("click",function (d) {ws.send(d)})
+//  	    .on("click",function (d) {ws.send(d)})
 	    .attr("id",function (d) {return d})
 	    .html(function (d) {return assoc_array_spie[d]});
-    };
 
-    var n=0;
+	tb=d3.select("#bobine").append("table").attr("class","tbobine").attr("style","width:100%");
+	tbb=tb.append("tbody"); 
+	tbb.selectAll("tr")
+	    .data(d3.keys(assoc_array_bobine))
+	    .enter()
+	    .append("tr")
+	    .append("td")
+  	    .on("click",function (d) {ws.send(assoc_array_bobine[d])}) // sparo sul socket WS che riceve i dati
+	    .attr("id",function (d) {return d})
+	    .html(function (d) {
+		if (assoc_array_spie[d]) {
+		    return assoc_array_spie[d];
+		} else { return d };
+		  }
+		 );
+    };
 
     var ws = new WebSocket('ws://' + '192.168.1.103' + ':8081','energy');
     ws.onmessage = function (event) {
