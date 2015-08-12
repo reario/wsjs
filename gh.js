@@ -196,38 +196,34 @@ var pressostato_pozzo_properties={"scaleparam": {"range":[10,height-60], "domain
                    };
 //----------------------------------------------------------------------------------------
 
-var assoc_array_spie = {
-"AUTOCLAVE":"Autoclave",
-"POMPA_SOMMERSA":"Pozzo", 
-"RIEMPIMENTO":"Serbatoio",
-"LUCI_ESTERNE_SOTTO":"Luci Esterne",
-"CENTR_R8":"R8",
-"LUCI_GARAGE_DA_4":"Garage 4",
-"LUCI_GARAGE_DA_2":"Garage 2",
-"LUCI_TAVERNA_1_di_2":"Taverna 1",
-"LUCI_TAVERNA_2_di_2":"Taverna 2",
-"INTERNET":"Internet",
-"C9912":"C9912",
-"LUCI_CUN_LUN":"Cun.Lungo",
-"LUCI_CUN_COR":"Cun.Corto",
-"LUCI_STUDIO_SOTTO":"Studio",
-"LUCI_ANDRONE_SCALE":"Scale",
-"GENERALE_AUTOCLAVE":"Generale Autoclave",
-"LUCI_CANTINETTA":"Cantinetta"
-};
+
+  var array_spie = {
+  "AUTOCLAVE":"Autoclave",
+  "POMPA_SOMMERSA":"Pozzo", 
+  "RIEMPIMENTO":"Serbatoio",
+  "LUCI_ESTERNE_SOTTO":"Luci Esterne",
+  "CENTR_R8":"R8",
+  "LUCI_GARAGE_DA_4":"Garage 4",
+  "LUCI_GARAGE_DA_2":"Garage 2",
+  "LUCI_TAVERNA_1_di_2":"Taverna 1",
+  "LUCI_TAVERNA_2_di_2":"Taverna 2",
+  "INTERNET":"Internet",
+  "C9912":"C9912",
+  "LUCI_CUN_LUN":"Cun.Lungo",
+  "LUCI_CUN_COR":"Cun.Corto",
+  "LUCI_STUDIO_SOTTO":"Studio",
+  "LUCI_ANDRONE_SCALE":"Scale",
+  "GENERALE_AUTOCLAVE":"Generale Autoclave",
+  "LUCI_CANTINETTA":"Cantinetta"
+  };
 
 
-
-function changecolor(w) {
-
-d3.select('#hb').html("0");
-
-}
+var array_spie;
+var assoc_artray_bobine;
 
 function initDashBoard() {
     
     d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: #E4E2EE; width: 425px; float:left");
-    // d3.select("body").append("div").attr("id","spie").attr("style"," width: 145px; height: 500px; float:left");
     d3.select("body").append("div").attr("id","spie").attr("style"," width: 145px; height: 500px; float:left");
     d3.select("body").append("div").attr("id","hb").attr("style","background-color: orange; width: 10px; height: 10px; float:left;");
 
@@ -237,23 +233,26 @@ function initDashBoard() {
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
 
-    t=d3.select("#spie").append("table").attr("class","tspie").attr("style","width:100%");
-    tb=t.append("tbody");
-    
-    tb.selectAll("tr").data(d3.keys(assoc_array_spie))
-	.enter()
-	.append("tr")
-	.append("td")
-  	.on("click",function (d) {ws.send(d)})
-	.attr("id",function (d) {return d})
-	.html(function (d) {return assoc_array_spie[d]});
-
+    var ws_spie_bobine = new WebSocket('ws://' + '192.168.1.103' + ':8081','spie_bobine');
+    ws_spie_bobine.onmessage = function (event) {
+	assoc_array_spie=JSON.parse(event.data).spie;
+	assoc_array_bobine=JSON.parse(event.data).bobine;
+	ws_spie_bobine.close();
+	t=d3.select("#spie").append("table").attr("class","tspie").attr("style","width:100%");
+	tb=t.append("tbody");    
+	tb.selectAll("tr")
+	    .data(d3.keys(assoc_array_spie))
+	    .enter()
+	    .append("tr")
+	    .append("td")
+  	    .on("click",function (d) {ws.send(d)})
+	    .attr("id",function (d) {return d})
+	    .html(function (d) {return assoc_array_spie[d]});
+    };
 
     var n=0;
-    
-    // var ws = new WebSocket('ws://' + 'giannini.homeip.net' + ':81','energy'); // Hearth Beat
-    var ws = new WebSocket('ws://' + '192.168.1.103' + ':81','energy');
-  //  d3.select('#AUTOCLAVE').on("click",function() {ws.send("pippo")});    
+
+    var ws = new WebSocket('ws://' + '192.168.1.103' + ':8081','energy');
     ws.onmessage = function (event) {
 	var A=parseFloat(JSON.parse(event.data).Energia.I);
 	var V=parseFloat(JSON.parse(event.data).Energia.V);
@@ -266,14 +265,15 @@ function initDashBoard() {
 	move(pressostato,Bar);
 	move(pressostato_pozzo,Bar_pozzo);
 
-     $.each(assoc_array_spie, function(index, value) {
-	 if (JSON.parse(event.data).Stati[index]==1) {
-	     d3.select('#'+index).attr("class","tdon");
-	 } else {
-	     d3.select('#'+index).attr("class","tdoff");
-	 }
-	 
-     });	
+	$.each(assoc_array_spie, function(index, value) {
+	    if (JSON.parse(event.data).Stati[index]==1) {
+		d3.select('#'+index).attr("class","tdon");
+	    } else {
+		d3.select('#'+index).attr("class","tdoff");
+	    }
+	    
+	});	
+
 	var c = $('#hb').html();
 	n++;
 	if (n == 5) {
