@@ -237,6 +237,10 @@ function initDashBoard() {
 	    .enter()
 	    .append("tr")
 	    .append("td")
+	    .on("mouseover",function(){d3.select(this).attr("class", "tdover")})
+	    .on("mouseleave",function(){d3.select(this).attr("class", "tdoff")})
+	    .on("mousedown",function(){d3.select(this).attr("class", "tdon")})
+	    .on("mouseup",function(){d3.select(this).attr("class", "tdoff")})
   	    .on("click",function (d) {ws.send(assoc_array_bobine[d])}) // sparo sul socket WS che riceve i dati
 	    .attr("id",function (d) {return d})
 	    .html(function (d) {
