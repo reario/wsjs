@@ -200,6 +200,9 @@ var array_spie;
 var assoc_artray_bobine;
 var n=0;
 
+
+
+
 function initDashBoard() {
     
     d3.select("body").append("div").attr("id","strumenti").attr("style","background-color: #E4E2EE; width: 425px; float:left");
@@ -213,12 +216,19 @@ function initDashBoard() {
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
 
+
+    // mi collego al websocket con il protocollo SPIE_BOBINE per farmi ritornare l'elenco (in formato JSON
+    // I valori sono la lista delle spie (con i nomi) e la lista delle bobine (pulsanti)
+    // appena ho ottenuto questi, chiudo il socket. 
     var ws_spie_bobine = new WebSocket('ws://' + '192.168.1.103' + ':8081','spie_bobine');
     ws_spie_bobine.onmessage = function (event) {
+	// 
 	assoc_array_spie=JSON.parse(event.data).spie;
 	assoc_array_bobine=JSON.parse(event.data).bobine;
-	ws_spie_bobine.close();
-
+	//ws_spie_bobine.close(); // ho appena ricevuto le liste, chiudo il socket altrimente continuo all'infinito
+	
+	// Creo le due table: spie e pulsanti a partire dalle liste appena ricevute.
+	// creo la table delle spie
 	ts=d3.select("#spie").append("table").attr("class","tspie").attr("style","width:100%");
 	tsb=ts.append("tbody");    
 	tsb.selectAll("tr")
@@ -226,10 +236,10 @@ function initDashBoard() {
 	    .enter()
 	    .append("tr")
 	    .append("td")
-//  	    .on("click",function (d) {ws.send(d)})
 	    .attr("id",function (d) {return d})
 	    .html(function (d) {return assoc_array_spie[d]});
 
+	// creo la table dei pulsanti
 	tb=d3.select("#bobine").append("table").attr("class","tbobine").attr("style","width:100%");
 	tbb=tb.append("tbody"); 
 	tbb.selectAll("tr")
@@ -243,12 +253,21 @@ function initDashBoard() {
 	    .on("mouseup",function(){d3.select(this).attr("class", "tdoff")})
   	    .on("click",function (d) {ws.send(assoc_array_bobine[d])}) // sparo sul socket WS che riceve i dati
 	    .attr("id",function (d) {return d})
-	    .html(function (d) {
+	    .html(function (d) { // se l'elemento ha associato un nome lo metto, altrimento stampo la key
 		if (assoc_array_spie[d]) {
 		    return assoc_array_spie[d];
 		} else { return d };
 		  }
 		 );
+    };
+
+    var ws_totp = new WebSocket('ws://' + '192.168.1.103' + ':8081','totp')    
+
+    ws_totp.onopen = function () {
+	ws_totp.send('001599');
+	ws_totp.onmessage = function (msg) {
+	    alert(msg.data);
+	}
     };
 
     var ws = new WebSocket('ws://' + '192.168.1.103' + ':8081','energy');
@@ -272,7 +291,7 @@ function initDashBoard() {
 	    }
 	    
 	});	
-
+	
 	var c = $('#hb').html();
 	n++;
 	if (n == 5) {
@@ -285,6 +304,14 @@ function initDashBoard() {
 	}
 	
     } // ws.onmessage
+
+
+$(window).bind('beforeunload', function(){
+ws.close();
+ws_spie_bobine.close();
+ws_totp.close();
+});
+
 }
 
-  
+
