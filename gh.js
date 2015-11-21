@@ -199,8 +199,9 @@ var pressostato_pozzo_properties={"scaleparam": {"range":[10,height-60], "domain
 var array_spie;
 var assoc_artray_bobine;
 var n=0;
+var host = '192.168.1.103';
 
-
+var SoBs,Energy,spie,bobine;
 
 
 function initDashBoard() {
@@ -216,34 +217,45 @@ function initDashBoard() {
     pressostato=createStrumento(pressostato_properties);
     pressostato_pozzo=createStrumento(pressostato_pozzo_properties);
 
-
-    // mi collego al websocket con il protocollo SPIE_BOBINE per farmi ritornare l'elenco (in formato JSON
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // mi collego al websocket con il protocollo SPIE_BOBINE per farmi ritornare l'elenco (in formato JSON)
     // I valori sono la lista delle spie (con i nomi) e la lista delle bobine (pulsanti)
     // appena ho ottenuto questi, chiudo il socket. 
-    var ws_spie_bobine = new WebSocket('ws://' + '192.168.1.103' + ':8081','spie_bobine');
+    var ws_spie_bobine = new WebSocket('ws://' + host + ':8081','spie_bobine');    
     ws_spie_bobine.onmessage = function (event) {
-	// 
-	assoc_array_spie=JSON.parse(event.data).spie;
-	assoc_array_bobine=JSON.parse(event.data).bobine;
-	//ws_spie_bobine.close(); // ho appena ricevuto le liste, chiudo il socket altrimente continuo all'infinito
+	
+	SoBs=JSON.parse(event.data).SoBs;
+	Energy=JSON.parse(event.data).Energia;
+	spie = [];
+	bobine=[];
+	
+	$.each(SoBs,function(i,c) {
+	    // in spie ci sono elementi che sono solo spie e elementi che sono spie e bobine
+	    // in bobine ci sono elementi che sono o solo bobine e elementi che sono spie e bobine
+	    if (c.funzione=="spia"||c.funzione=="spia_bobina") 
+	    {spie.push([c.id,i])} 
+	    else {bobine.push([c.id,i])}; //Inserisco anche la chiave SoBs perchè è questa che mando indietro al server quando clicco
+	    if (c.funzione=="spia_bobina") {bobine.push([c.id,i])};
+	});
 	
 	// Creo le due table: spie e pulsanti a partire dalle liste appena ricevute.
+	////////////////////////////////////////////////////////////////////////////
 	// creo la table delle spie
 	ts=d3.select("#spie").append("table").attr("class","tspie").attr("style","width:100%");
 	tsb=ts.append("tbody");    
 	tsb.selectAll("tr")
-	    .data(d3.keys(assoc_array_spie))
+	    .data(spie)		 
 	    .enter()
 	    .append("tr")
 	    .append("td")
-	    .attr("id",function (d) {return d})
-	    .html(function (d) {return assoc_array_spie[d]});
-
-	// creo la table dei pulsanti
+	    .attr("id",function (d) {return d[1]})
+	    .html(function (d) {return d[0]});
+	
+	// creo la table delle bobine
 	tb=d3.select("#bobine").append("table").attr("class","tbobine").attr("style","width:100%");
 	tbb=tb.append("tbody"); 
 	tbb.selectAll("tr")
-	    .data(d3.keys(assoc_array_bobine))
+	    .data(bobine) // <-- la condizione è bobine && spie_bobine
 	    .enter()
 	    .append("tr")
 	    .append("td")
@@ -251,47 +263,40 @@ function initDashBoard() {
 	    .on("mouseleave",function(){d3.select(this).attr("class", "tdoff")})
 	    .on("mousedown",function(){d3.select(this).attr("class", "tdon")})
 	    .on("mouseup",function(){d3.select(this).attr("class", "tdoff")})
-  	    .on("click",function (d) {ws.send(assoc_array_bobine[d])}) // sparo sul socket WS che riceve i dati
-	    .attr("id",function (d) {return d})
-	    .html(function (d) { // se l'elemento ha associato un nome lo metto, altrimento stampo la key
-		if (assoc_array_spie[d]) {
-		    return assoc_array_spie[d];
-		} else { return d };
-		  }
-		 );
-    };
-
-    var ws_totp = new WebSocket('ws://' + '192.168.1.103' + ':8081','totp')    
-
-    ws_totp.onopen = function () {
-	ws_totp.send('001599');
-	ws_totp.onmessage = function (msg) {
-	    alert(msg.data);
-	}
-    };
-
-    var ws = new WebSocket('ws://' + '192.168.1.103' + ':8081','energy');
+  	//.on("click",function (d) {ws.send(d)}) // sparo sul socket WS che riceve i dati
+	    .attr("id",function (d) {return d[1]})
+	    .html(function (d) {  return d[0];});	
+	tbb.selectAll('td').on("click", function(d) {alert(d[1])})   //d[1] è la chiave SoBs che mando indietgro al server
+    }
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // aggiorno lo stato delle spie
+    var ws = new WebSocket('ws://' + host + ':8081','energy');
     ws.onmessage = function (event) {
-	var A=parseFloat(JSON.parse(event.data).Energia.I);
-	var V=parseFloat(JSON.parse(event.data).Energia.V);
-	var W=parseFloat(JSON.parse(event.data).Energia.P);    
-	var Bar=parseFloat(JSON.parse(event.data).Bar);
-	var Bar_pozzo=parseFloat(JSON.parse(event.data).Bar_pozzo);
+	SoBs=JSON.parse(event.data).SoBs;
+	Energy=JSON.parse(event.data).Energia;
+
+	  var A=parseFloat(Energy.I);
+	  var V=parseFloat(Energy.V);
+          var W=parseFloat(Energy.P);    
+	var Bar=parseFloat(Energy.BAR);
+  var Bar_pozzo=parseFloat(Energy.BAR_POZZO);
 	move(amperometro,A);
 	move(voltmetro,V);
 	move(wattmetro,W);
 	move(pressostato,Bar);
 	move(pressostato_pozzo,Bar_pozzo);
 
-	$.each(assoc_array_spie, function(index, value) {
-	    if (JSON.parse(event.data).Stati[index]==1) {
+
+	$.each(SoBs, function(index, value) {
+	    if (value.stato==1) {
 		d3.select('#'+index).attr("class","tdon");
 	    } else {
 		d3.select('#'+index).attr("class","tdoff");
 	    }
 	    
 	});	
-	
+ 	
 	var c = $('#hb').html();
 	n++;
 	if (n == 5) {
@@ -305,9 +310,27 @@ function initDashBoard() {
 	
     } // ws.onmessage
 
+    var ws_totp = new WebSocket('ws://' + host + ':8081','totp')    
+    ws_totp.onopen = function () {
+	ws_totp.send('001599');
+	ws_totp.onmessage = function (msg) {
+	    //alert(msg.data);
+	}
+    };
+
+
+
+
+
+
+
+
+
+
+
 
 $(window).bind('beforeunload', function(){
-ws.close();
+//.close();
 ws_spie_bobine.close();
 ws_totp.close();
 });
