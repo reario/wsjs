@@ -199,7 +199,7 @@ var pressostato_pozzo_properties={"scaleparam": {"range":[10,height-60], "domain
 var array_spie;
 var assoc_artray_bobine;
 var n=0;
-var host = '192.168.1.103';
+var host = '192.168.1.110';
 
 var SoBs,Energy,spie,bobine;
 
