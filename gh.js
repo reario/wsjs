@@ -203,6 +203,15 @@ var host = '192.168.1.110';
 
 var SoBs,Energy,spie,bobine;
 
+function initDashBoardTest() {
+    var fraggle = new WebSocket('ws://' + host + ':7681','fraggle-protocol');    
+    
+    fraggle.onmessage = function (event) {
+	//SoBs=JSON.parse(event.data).SoBs;
+	console.log(event.data);		
+	}
+
+}
 
 function initDashBoard() {
     
@@ -232,10 +241,13 @@ function initDashBoard() {
 	$.each(SoBs,function(i,c) {
 	    // in spie ci sono elementi che sono solo spie e elementi che sono spie e bobine
 	    // in bobine ci sono elementi che sono o solo bobine e elementi che sono spie e bobine
-	    if (c.funzione=="spia"||c.funzione=="spia_bobina") 
-	    {spie.push([c.id,i])} 
+	    if (c.funzione=="spia"  ||c.funzione=="spia_bobina") {spie.push([c.id,i])} ;
+	    if (c.funzione=="bobina"||c.funzione=="spia_bobina") {bobine.push([c.id,i])}
+
+/*
 	    else {bobine.push([c.id,i])}; //Inserisco anche la chiave SoBs perchè è questa che mando indietro al server quando clicco
 	    if (c.funzione=="spia_bobina") {bobine.push([c.id,i])};
+*/
 	});
 	
 	// Creo le due table: spie e pulsanti a partire dalle liste appena ricevute.
@@ -248,12 +260,12 @@ function initDashBoard() {
 	    .enter()
 	    .append("tr")
 	    .append("td")
-	    .attr("id",function (d) {return d[1]})
+	    .attr("id",function (d) {return "s"+d[1]})
 	    .html(function (d) {return d[0]});
-	
+
 	// creo la table delle bobine
 	tb=d3.select("#bobine").append("table").attr("class","tbobine").attr("style","width:100%");
-	tbb=tb.append("tbody"); 
+	tbb=tb.append("tbody");
 	tbb.selectAll("tr")
 	    .data(bobine) // <-- la condizione è bobine && spie_bobine
 	    .enter()
@@ -264,23 +276,24 @@ function initDashBoard() {
 	    .on("mousedown",function(){d3.select(this).attr("class", "tdon")})
 	    .on("mouseup",function(){d3.select(this).attr("class", "tdoff")})
   	//.on("click",function (d) {ws.send(d)}) // sparo sul socket WS che riceve i dati
-	    .attr("id",function (d) {return d[1]})
+	    .attr("id",function (d) {return "b"+d[1]})
 	    .html(function (d) {  return d[0];});	
-	tbb.selectAll('td').on("click", function(d) {alert(d[1])})   //d[1] è la chiave SoBs che mando indietgro al server
+	tbb.selectAll('td').on("click", function(d) {ws.send(d[1])})   //d[1] è la chiave SoBs che mando indietro al server
     }
-    
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // aggiorno lo stato delle spie
     var ws = new WebSocket('ws://' + host + ':8081','energy');
     ws.onmessage = function (event) {
 	SoBs=JSON.parse(event.data).SoBs;
+	//console.log(event.data);
 	Energy=JSON.parse(event.data).Energia;
 
-	  var A=parseFloat(Energy.I);
-	  var V=parseFloat(Energy.V);
-          var W=parseFloat(Energy.P);    
-	var Bar=parseFloat(Energy.BAR);
-  var Bar_pozzo=parseFloat(Energy.BAR_POZZO);
+	  var A=parseFloat(Energy.I).toFixed(1);
+	  var V=parseFloat(Energy.V).toFixed(1);
+          var W=parseFloat(Energy.P).toFixed(1);    
+	var Bar=parseFloat(Energy.BAR).toFixed(2);
+  var Bar_pozzo=parseFloat(Energy.BAR_POZZO).toFixed(2);
 	move(amperometro,A);
 	move(voltmetro,V);
 	move(wattmetro,W);
@@ -290,13 +303,12 @@ function initDashBoard() {
 
 	$.each(SoBs, function(index, value) {
 	    if (value.stato==1) {
-		d3.select('#'+index).attr("class","tdon");
+		d3.select('#'+"s"+index).attr("class","tdon");
 	    } else {
-		d3.select('#'+index).attr("class","tdoff");
-	    }
-	    
+		d3.select('#'+"s"+index).attr("class","tdoff");
+	    }	    
 	});	
- 	
+
 	var c = $('#hb').html();
 	n++;
 	if (n == 5) {
@@ -317,17 +329,6 @@ function initDashBoard() {
 	    //alert(msg.data);
 	}
     };
-
-
-
-
-
-
-
-
-
-
-
 
 $(window).bind('beforeunload', function(){
 //.close();
