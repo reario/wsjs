@@ -237,17 +237,22 @@ function initDashBoard() {
 	Energy=JSON.parse(event.data).Energia;
 	spie = [];
 	bobine=[];
+
 	
 	$.each(SoBs,function(i,c) {
 	    // in spie ci sono elementi che sono solo spie e elementi che sono spie e bobine
 	    // in bobine ci sono elementi che sono o solo bobine e elementi che sono spie e bobine
-	    if (c.funzione=="spia"  ||c.funzione=="spia_bobina") {spie.push([c.id,i])} ;
-	    if (c.funzione=="bobina"||c.funzione=="spia_bobina") {bobine.push([c.id,i])}
-
-/*
-	    else {bobine.push([c.id,i])}; //Inserisco anche la chiave SoBs perchè è questa che mando indietro al server quando clicco
-	    if (c.funzione=="spia_bobina") {bobine.push([c.id,i])};
-*/
+	    if (c.funzione=="spia"  ||c.funzione=="spia_bobina") {spie.push([c.label,i])} ;
+	    if (c.funzione=="bobina" || c.funzione=="spia_bobina") {
+		// una stessa bobina può attivare più input sul plc
+		// queste sul JSON hanno il campo Group settato che è la label del menu bobine
+		// per esempio rele garage e taverna
+		var l=c.label;
+		if (c.Group) {l=c.Group; } 
+		if (! bobine.find(function(a) {return (a[0] == l)})) { // elemento "l" non deve esere già presente
+		    bobine.push([l,i]);
+		}
+	    }
 	});
 	
 	// Creo le due table: spie e pulsanti a partire dalle liste appena ricevute.
@@ -299,7 +304,6 @@ function initDashBoard() {
 	move(wattmetro,W);
 	move(pressostato,Bar);
 	move(pressostato_pozzo,Bar_pozzo);
-
 
 	$.each(SoBs, function(index, value) {
 	    if (value.stato==1) {
