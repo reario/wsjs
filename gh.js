@@ -199,7 +199,7 @@ var pressostato_pozzo_properties={"scaleparam": {"range":[10,height-60], "domain
 var array_spie;
 var assoc_artray_bobine;
 var n=0;
-var host = '192.168.1.110';
+var host = '192.168.1.103';
 
 var SoBs,Energy,spie,bobine;
 
@@ -237,7 +237,6 @@ function initDashBoard() {
 	Energy=JSON.parse(event.data).Energia;
 	spie = [];
 	bobine=[];
-
 	
 	$.each(SoBs,function(i,c) {
 	    // in spie ci sono elementi che sono solo spie e elementi che sono spie e bobine
@@ -246,7 +245,7 @@ function initDashBoard() {
 	    if (c.funzione=="bobina" || c.funzione=="spia_bobina") {
 		// una stessa bobina può attivare più input sul plc
 		// queste sul JSON hanno il campo Group settato che è la label del menu bobine
-		// per esempio rele garage e taverna
+		// per esempio rele passo-passo garage e taverna
 		var l=c.label;
 		if (c.Group) {l=c.Group; } 
 		if (! bobine.find(function(a) {return (a[0] == l)})) { // elemento "l" non deve esere già presente
