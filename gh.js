@@ -283,7 +283,7 @@ function initDashBoard() {
 	    .attr("id",function (d) {return "b"+d[1]})
 	    .html(function (d) {  return d[0];});	
 	tbb.selectAll('td').on("click", function(d) {ws.send(d[1])})   //d[1] è la chiave SoBs che mando indietro al server
-    }
+    }  // ws_spie_bobine.onmessage 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // aggiorno lo stato delle spie
@@ -293,11 +293,11 @@ function initDashBoard() {
 	//console.log(event.data);
 	Energy=JSON.parse(event.data).Energia;
 
-	  var A=parseFloat(Energy.I).toFixed(1);
-	  var V=parseFloat(Energy.V).toFixed(1);
-          var W=parseFloat(Energy.P).toFixed(1);    
+	var A=parseFloat(Energy.I).toFixed(1);
+	var V=parseFloat(Energy.V).toFixed(3);
+        var W=parseFloat(Energy.P).toFixed(1);    
 	var Bar=parseFloat(Energy.BAR).toFixed(2);
-  var Bar_pozzo=parseFloat(Energy.BAR_POZZO).toFixed(2);
+	var Bar_pozzo=parseFloat(Energy.BAR_POZZO).toFixed(2);
 	move(amperometro,A);
 	move(voltmetro,V);
 	move(wattmetro,W);
@@ -324,20 +324,20 @@ function initDashBoard() {
 	}
 	
     } // ws.onmessage
-
+    
     var ws_totp = new WebSocket('ws://' + host + ':8081','totp')    
     ws_totp.onopen = function () {
-	ws_totp.send('001599');
+	ws_totp.send('226820');
 	ws_totp.onmessage = function (msg) {
 	    //alert(msg.data);
 	}
     };
-
-$(window).bind('beforeunload', function(){
-//.close();
-ws_spie_bobine.close();
-ws_totp.close();
-});
+    
+    $(window).bind('beforeunload', function(){
+	//.close();
+	ws_spie_bobine.close();
+	ws_totp.close();
+    });
 
 }
 
